@@ -1,0 +1,32 @@
+"""
+
+"""
+
+import praw
+import time
+from collections import deque
+
+user_agent = ('Dedicated to promoting the knowledge of Warlizards origin story by /u/SnufflesTheAnteater')
+r = praw.Reddit(user_agent)
+user_name = "SnufflesTheAnteater"
+already_done = set()
+queue = deque([])
+comment = "Don't mind me, just testin' my bot"
+goal = 0
+
+r.login('VP_Warlizard_Forums', 'drinkcocacolacold')
+user = r.get_redditor(user_name)
+
+while True:
+    now = time.time()
+    comments = user.get_comments(limit=10)
+    if now >= goal and queue:
+        queue.popleft().reply(comment)
+        goal = now + 720
+        print("Comment posted")
+    for comment in comments:
+        if comment.id not in already_done:
+            queue.append(comment)
+            already_done.add(comment.id)
+            print("queued")
+    time.sleep(5)
