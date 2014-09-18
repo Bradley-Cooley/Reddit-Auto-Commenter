@@ -14,24 +14,26 @@ user_comment = raw_input("What would you like your comment to say?")
 # Attributes
 already_done = set()
 queue = deque([])
-goal = 0
 flag = True
 
 # Setup praw and login
 user_agent = ('Dedicated to promoting the knowledge of Warlizards origin story by /u/SnufflesTheAnteater')
 r = praw.Reddit(user_agent)
 r.login(user_name)
+print("Logged in as " + user_name)
 target = r.get_redditor(target_name)
 
 while flag == True:
-    now = time.time()
     comments = target.get_comments(limit=10)
-    if now >= goal and queue:
-        queue.popleft().reply(user_comment)
-        goal = now + 720
-        print("Comment posted. ", len(queue), " left in queue.")
+    if queue:
+        try:
+            queue.popleft().reply(user_comment)
+            print("Comment posted. %d left in queue." % len(queue))
+        except praw.errors.RateLimitExceeded as e:
+            print('Comment rate limit exceeded, sleeping for %d seconds.' % e.sleep_time)
+            time.sleep(e.sleep_time)
     for comment in comments:
-        if comment.id not in already_done:
+        if comment.id not in already_done and comment not in queue:
             users_replied = set()
             replies = comment.replies
             for comment in replies:
@@ -40,7 +42,7 @@ while flag == True:
                 queue.append(comment)
                 already_done.add(comment.id)
                 print("Comment queued.")
-    time.sleep(5)
+    time.sleep(2)
 
     if not queue:
         continue_run = raw_input("No comments in queue. Y to quit, N to continue.")
