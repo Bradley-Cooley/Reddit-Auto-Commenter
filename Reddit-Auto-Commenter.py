@@ -55,6 +55,5 @@ while flag == True:
         continue_run = raw_input("No comments in queue. Press enter to quit.")
         flag = False
 
-print("Thanks for using Reddit Auto Commenter! Automatic exit will occur.")
-time.sleep(3)
+print("Thanks for using Reddit Auto Commenter!")
 exit
